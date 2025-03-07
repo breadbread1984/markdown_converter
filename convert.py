@@ -5,6 +5,7 @@ from shutil import rmtree
 from os import listdir, walk, mkdir
 from os.path import exists, join, splitext
 from doc2md import docx_to_markdown
+from pdf2md import pdf_to_markdown
 
 FLAGS = flags.FLAGS
 
@@ -20,8 +21,11 @@ def main(unused_argv):
       stem, ext = splitext(f)
       if ext in ['.doc', '.docx']:
         markdown = docx_to_markdown(join(root, f))
-        with open(join(FLAGS.output_dir, f'{stem}.md'), 'w') as of:
-          of.write(markdown)
+      elif ext == '.pdf':
+        markdown = pdf_to_markdown(join(root, f))
+      else: continue
+      with open(join(FLAGS.output_dir, f'{stem}.md'), 'w') as of:
+        of.write(markdown)
 
 if __name__ == "__main__":
   add_options()
