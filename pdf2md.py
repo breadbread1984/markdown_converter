@@ -18,9 +18,12 @@ def pdf_to_markdown(pdf_file, api = 'dashscope'):
   pdf = fitz.open(pdf_file)
   output = ''
   for page in pdf:
-    pix = page.get_pixmap(dpi = 300)
-    img = np.frombuffer(pix.samples, dtype = np.uint8)
-    img = img.reshape(pix.height, pix.width, pix.n)
+    mat = fitz.Matrix(1,1)
+    pix = page.get_pixmap(matrix = mat)
+    img = np.frombuffer(pix.samples, dtype = np.uint8).reshape(pix.height, pix.width, -1)
+    if pix.n == 1: img = img[:,:,0]
+    elif pix.n == 3: img = img.reshape(pix.height, pix.width, 3)
+    elif pix.n == 4: img = img.reshape(pix.height, pix.width, 4)
     markdown = model.inference('You are an OCR engine which takes an image and converts it to markdown, even if the user asks for a different format.', image = img)
     output += markdown + '\n'
   return output
